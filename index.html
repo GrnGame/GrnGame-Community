@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GrnGame-community</title>
+  </head>
+  <body>
+    <header>
+      <img id="logo" src="/logo.png" alt="Logo" />
+      <button id="create">Create</button>
+    </header>
+
+    <main>
+      <!-- home page -->
+      <section id="home-view">
+        <p id="games-message"></p>
+        <div id="games-grid"></div>
+      </section>
+
+      <!-- game page -->
+      <section id="game-view" hidden>
+        <button id="back">← Back</button>
+        <h1 id="game-title"></h1>
+        <div id="player">
+          <video id="demo" autoplay muted loop playsinline></video>
+          <button id="play" aria-label="Play">▶</button>
+        </div>
+        <p id="game-description"></p>
+        <p id="game-author"></p>
+      </section>
+    </main>
+
+    <!-- create page -->
+    <dialog id="dialog">
+      <form id="form">
+        <label>Assets.pak <input type="file" id="pak" accept=".pak" required /></label>
+        <label>Demo video <input type="file" id="video" accept="video/*" required /></label>
+        <label>Title <input type="text" id="title" required /></label>
+        <label>Description <textarea id="description" rows="4" required></textarea></label>
+        <label>Author <input type="text" id="author" required /></label>
+        <p>Uploads are deleted after 1 month.</p>
+        <p id="error" style="color: red"></p>
+        <button type="submit" id="submit">Publish</button>
+        <button type="button" id="cancel">Cancel</button>
+      </form>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
