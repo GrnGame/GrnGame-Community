@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>GrnGame for web</title>
-
+    <link rel="icon" type="image/png" href="logo.png">
     <style>
         * {
             margin: 0;
@@ -42,10 +42,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 64px;
+            gap: 32px;
             background: #000;
-            color: #ddd;
-            font-family: monospace;
             transition: opacity 0.3s;
         }
 
@@ -54,21 +52,37 @@
             pointer-events: none;
         }
 
-        #loader.error {
+        #loader-logo {
+            width: 512px;
+            height: 512px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            animation: pulse 2.0s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        #loader-text {
+            display: none;
             color: rgb(199, 17, 17);
+            font-family: monospace;
+            text-align: center;
+            padding: 0 16px;
         }
 
-        #loader-bar {
-            width: min(480px, 100vw);
-            height: 20px;
-            border: 4px solid #555;
-        }
-
-        #loader-fill {
-            width: 0%;
-            height: 100%;
-            background: #ddd;
-            transition: width 0.15s;
+        #loader.error #loader-text {
+            display: block;
         }
     </style>
 </head>
@@ -78,27 +92,18 @@
     <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
 
     <div id="loader">
-        <div id="loader-text">GrnGame is Loading...</div>
-        <div id="loader-bar">
-            <div id="loader-fill"></div>
-        </div>
+        <img id="loader-logo" src="logo.png" alt="">
+        <div id="loader-text"></div>
     </div>
 
     <script>
         var loader = document.getElementById("loader");
         var loaderText = document.getElementById("loader-text");
-        var loaderFill = document.getElementById("loader-fill");
-
-        function setLoader(text, percent) {
-            loaderText.textContent = text;
-            if (percent !== undefined)
-                loaderFill.style.width = percent + "%";
-        }
 
         function showLoaderError(message) {
             loader.classList.remove("hidden");
             loader.classList.add("error");
-            setLoader(message);
+            loaderText.textContent = message;
         }
 
         // name = file name inside the game's virtual file system
@@ -109,18 +114,15 @@
 
             fetch(url)
                 .then(function (response) {
-                    if (!response.ok) {
+                    if (!response.ok)
                         throw new Error("HTTP " + response.status);
-                        return null;
-                    }
                     return response.arrayBuffer();
                 })
                 .then(function (buffer) {
-                    if (buffer)
-                        FS.writeFile("/" + name, new Uint8Array(buffer));
+                    FS.writeFile("/" + name, new Uint8Array(buffer));
                 })
                 .catch(function (err) {
-                        showLoaderError("Failed to load " + name + " (" + err.message + ")");
+                    showLoaderError("Failed to load " + name + " (" + err.message + ")");
                 })
                 .finally(function () {
                     removeRunDependency(dep);
@@ -128,8 +130,6 @@
         }
 
         var pakUrl = new URLSearchParams(location.search).get("pak") || "Assets.pak";
-
-        var maxDependencies = 0;
 
         var Module = {
             canvas: document.getElementById("canvas"),
@@ -140,12 +140,6 @@
                     preloadFile("metadata.json", "metadata.json");
                 }
             ],
-
-            monitorRunDependencies: function (left) {
-                maxDependencies = Math.max(maxDependencies, left);
-                var done = maxDependencies - left;
-                setLoader("Loading...", maxDependencies ? (done / maxDependencies) * 100 : 0);
-            },
 
             postRun: [
                 function () {
@@ -159,12 +153,11 @@
             }
         };
     </script>
-    <!-- you can change name here if you rename your file  -->
     <script>
-            var runtimeScript = document.createElement("script");
-            runtimeScript.async = true;
-            runtimeScript.src = "Runtime-wasm-wasm32-releaseembedded.js";
-            document.body.appendChild(runtimeScript);
+        var runtimeScript = document.createElement("script");
+        runtimeScript.async = true;
+        runtimeScript.src = "Runtime-wasm-wasm32-releaseembedded.js";
+        document.body.appendChild(runtimeScript);
     </script>
 </body>
 
