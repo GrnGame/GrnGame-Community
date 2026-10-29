@@ -10,7 +10,7 @@ export const MAX_VIDEO_SIZE_MB: number = 20;
 
 export const PAK_BUCKET: string = 'paks';
 export const VIDEO_BUCKET: string = 'videos';
-export const HTML_NAME: string = '/play.html';
+export const HTML_NAME: string = `${import.meta.env.BASE_URL}play.html`;
 
 export const MB = 1024 * 1024;
 

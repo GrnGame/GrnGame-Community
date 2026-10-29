@@ -29,16 +29,17 @@ async function uploadFile(bucket: string, path: string, file: File): Promise<voi
   if (error) throw new Error(error.message);
 }
 
+//todo moderate videos
 async function moderateGame(input: GameInput): Promise<void> {
-  const body = new FormData();
-  body.append('title', input.title);
-  body.append('description', input.description);
-  body.append('author', input.author);
-  body.append('video', input.video);
-
-  const { data, error } = await supabase.functions.invoke('moderate-game', { body });
-  if (error) throw new Error(`Content moderation failed: ${error.message}`);
-  if (!data?.approved) throw new Error(data?.reason || 'The content was rejected by moderation');
+  const { data, error } = await supabase.functions.invoke('moderate-game', {
+    body: {
+      title: input.title,
+      description: input.description,
+      author: input.author,
+    },
+  })
+  if (error) throw new Error(`Content moderation failed: ${error.message}`)
+  if (!data?.approved) throw new Error(data?.reason || 'The content was rejected by moderation')
 }
 
 function toGame(row: GameRow): Game {
