@@ -12,4 +12,5 @@ export default defineConfig({
   preview: {
     headers: crossOriginIsolationHeaders,
   },
+  base: '/GrnGameCommunity/',
 });
