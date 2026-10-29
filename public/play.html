@@ -103,15 +103,14 @@
 
         // name = file name inside the game's virtual file system
         // url  = where to download it from
-        function preloadFile(name, url, required) {
+        function preloadFile(name, url) {
             var dep = "preload " + name;
             addRunDependency(dep);
 
             fetch(url)
                 .then(function (response) {
                     if (!response.ok) {
-                        if (required)
-                            throw new Error("HTTP " + response.status);
+                        throw new Error("HTTP " + response.status);
                         return null;
                     }
                     return response.arrayBuffer();
@@ -121,10 +120,7 @@
                         FS.writeFile("/" + name, new Uint8Array(buffer));
                 })
                 .catch(function (err) {
-                    if (required)
                         showLoaderError("Failed to load " + name + " (" + err.message + ")");
-                    else
-                        console.warn("Optional file " + name + " not loaded:", err);
                 })
                 .finally(function () {
                     removeRunDependency(dep);
@@ -140,9 +136,8 @@
 
             preRun: [
                 function () {
-                    preloadFile("Assets.pak", pakUrl, true);
-                    preloadFile("metadata.json", "metadata.json", true);
-                    preloadFile("game.data", "game.data", true);
+                    preloadFile("Assets.pak", pakUrl);
+                    preloadFile("metadata.json", "metadata.json");
                 }
             ],
 
