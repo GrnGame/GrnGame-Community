@@ -9,10 +9,14 @@ import {
   MB,
 } from './constant';
 import type { GameInput } from './types';
+import { checkTextModeration } from './moderation';
 
 // return null if correct or error string 
 export function checkGameInput(game: GameInput): string | null {
-  const { title, description, pak, video } = game;
+  const { title, description, author, pak, video } = game;
+
+  const moderationProblem = checkTextModeration({ title, description, author });
+  if (moderationProblem) return moderationProblem;
 
   if (pak.name !== PAK_FILE_NAME) return `The file must be named ${PAK_FILE_NAME}`;
   if (pak.size > MAX_PAK_SIZE_MB * MB) return `${PAK_FILE_NAME} is too big (max ${MAX_PAK_SIZE_MB} MB)`;

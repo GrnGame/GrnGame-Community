@@ -2,10 +2,19 @@ import { createClient } from '@supabase/supabase-js';
 import { PAK_BUCKET, PAK_FILE_NAME, VIDEO_BUCKET, VIDEO_FILE_NAME } from '../constant';
 import type { Game, GameInput, GameRow } from '../types';
 
+function requiredEnv(name: 'VITE_SUPABASE_URL' | 'VITE_SUPABASE_ANON_KEY'): string {
+  const value = import.meta.env[name];
+  if (!value) {
+    throw new Error(
+      `${name} is missing.`,
+    );
+  }
+  return value;
+}
+
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY,
-  
+  requiredEnv('VITE_SUPABASE_URL'),
+  requiredEnv('VITE_SUPABASE_ANON_KEY'),
 );
 
 function getPublicUrl(bucket: string, path: string): string {
@@ -20,6 +29,18 @@ async function uploadFile(bucket: string, path: string, file: File): Promise<voi
   if (error) throw new Error(error.message);
 }
 
+async function moderateGame(input: GameInput): Promise<void> {
+  const body = new FormData();
+  body.append('title', input.title);
+  body.append('description', input.description);
+  body.append('author', input.author);
+  body.append('video', input.video);
+
+  const { data, error } = await supabase.functions.invoke('moderate-game', { body });
+  if (error) throw new Error(`Content moderation failed: ${error.message}`);
+  if (!data?.approved) throw new Error(data?.reason || 'The content was rejected by moderation');
+}
+
 function toGame(row: GameRow): Game {
   return {
     ...row,
@@ -32,6 +53,7 @@ function toGame(row: GameRow): Game {
 export async function uploadGame(input: GameInput): Promise<void> {
   const id = crypto.randomUUID();
 
+  await moderateGame(input);
   await uploadFile(PAK_BUCKET, `${id}/${PAK_FILE_NAME}`, input.pak);
   await uploadFile(VIDEO_BUCKET, `${id}/${VIDEO_FILE_NAME}`, input.video);
 
