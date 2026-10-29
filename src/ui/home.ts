@@ -1,6 +1,6 @@
 import type { Game } from '../types';
 import { getElement } from './dom';
-import { EMPTY_GAME_STRING } from '../constant';
+import { EMPTY_GAME_STRING,DEMO_FRAME } from '../constant';
 
 const grid = getElement('#games-grid');
 const message = getElement('#games-message');
@@ -18,7 +18,7 @@ function createCard(game: Game, onSelect: (game: Game) => void): HTMLElement {
   title.textContent = game.title;
 
   const preview = document.createElement('video');
-  preview.src = `${game.videoUrl}#t=0.0`; // show the first image of the video
+  preview.src = `${game.videoUrl}#t=${DEMO_FRAME}`; // show the first image of the video
   preview.preload = 'metadata';
   preview.muted = true;
 
